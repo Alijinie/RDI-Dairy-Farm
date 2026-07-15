@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pearl of Africa - B2B & Consumer Dairy App</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: { sans: ['Inter','sans-serif'], display: ['Plus Jakarta Sans','sans-serif'] },
+      colors: {
+        pearl: { green: '#0B3B2B', light: '#F1F7F4', gold: '#B08E22', cream: '#FCFCF9', dark: '#071F17' },
+        brand: '#0B3B2B'
+      },
+      boxShadow: { card: '0 8px 30px rgba(0,0,0,0.04)', float: '0 20px 45px rgba(0,0,0,0.1)' }
+    }
+  }
+}
+</script>
+<style>
+body{ background:#F4F6F2; -webkit-font-smoothing:antialiased; }
+.scrollbar-hide::-webkit-scrollbar{display:none}.scrollbar-hide{scrollbar-width:none}
+.no-scrollbar::-webkit-scrollbar{display:none}
+.card-enter{ animation: pop .32s cubic-bezier(.16, 1, .3, 1) }
+@keyframes pop{ from{ transform: translateY(12px) scale(.98); opacity:0 } to{ transform: translateY(0) scale(1); opacity:1 } }
+</style>
+</head>
+<body class="font-sans text-zinc-950">
+
+<!-- APP SHELL -->
+<div class="max-w-[1400px] mx-auto min-h-screen bg-[#FCFCF9] md:shadow-card md:my-6 md:rounded-[28px] overflow-hidden border border-zinc-200/60 flex flex-col">
+
+<!-- TOP NAV -->
+<header class="sticky top-0 z-30 bg-[#FCFCF9]/90 backdrop-blur-md border-b border-zinc-200/60">
+  <div class="px-4 md:px-8 h-[76px] flex items-center justify-between gap-4">
+    <div class="flex items-center gap-3">
+      <div class="w-11 h-11 rounded-xl bg-brand flex items-center justify-center text-white font-display font-extrabold text-[20px] shadow-sm">P</div>
+      <div class="leading-tight">
+        <div class="font-display font-extrabold text-[17px] tracking-tight text-brand">PEARL OF AFRICA</div>
+        <div class="text-[9.5px] tracking-[0.16em] text-zinc-500 font-bold uppercase">RDI Dairy Farm • Uganda</div>
+      </div>
+    </div>
+
+    <!-- MAIN SEGMENTED CONTROLLER (B2B vs Consumer Toggle) -->
+    <div class="hidden lg:flex p-1 bg-zinc-100 rounded-xl border border-zinc-200">
+      <button id="toggleB2BBtn" onclick="setAppMode('b2b')" class="px-5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 bg-brand text-white shadow-sm">
+        <i data-lucide="building-2" class="w-3.5 h-3.5"></i> Export Wholesale (B2B)
+      </button>
+      <button id="toggleConsumerBtn" onclick="setAppMode('consumer')" class="px-5 py-2 rounded-lg text-xs font-semibold text-zinc-500 hover:text-zinc-950 transition-all flex items-center gap-2">
+        <i data-lucide="home" class="w-3.5 h-3.5"></i> Local Retail (Consumer)
+      </button>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <!-- Location Selector Trigger -->
+      <button onclick="openLocationModal()" class="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-zinc-100/80 border border-zinc-200 text-xs font-bold text-zinc-800 hover:bg-zinc-200/50 transition-all">
+        <i data-lucide="globe" class="w-3.5 h-3.5 text-zinc-500"></i>
+        <span id="globalLocLabel">Lagos Port (NG)</span>
+        <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-zinc-400"></i>
+      </button>
+
+      <button onclick="openCart()" class="relative flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-zinc-900 text-white text-xs font-bold hover:bg-zinc-800 transition-all">
+        <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i>
+        <span class="hidden sm:inline">Cart</span>
+        <span id="cartCount" class="bg-pearl-gold text-zinc-950 text-[10px] font-extrabold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">0</span>
+      </button>
+      
+      <a href="https://wa.me/256709207543" target="_blank" class="hidden md:flex bg-[#25D366] hover:bg-[#20ba59] text-white px-4 py-2.5 rounded-xl text-xs font-bold gap-2 items-center transition-all"><i data-lucide="message-circle" class="w-4 h-4"></i> WhatsApp</a>
+    </div>
+  </div>
+
+  <!-- COMPACT MOBILE SUB-BAR (Mode toggle & Search) -->
+  <div class="px-4 pb-3 flex flex-col sm:flex-row gap-2 lg:hidden border-t border-zinc-100 pt-3">
+    <div class="grid grid-cols-2 p-1 bg-zinc-100 rounded-xl border border-zinc-200">
+      <button id="toggleB2BBtnM" onclick="setAppMode('b2b')" class="py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 bg-brand text-white shadow-sm">
+        <i data-lucide="building-2" class="w-3 h-3"></i> B2B Export
+      </button>
+      <button id="toggleConsumerBtnM" onclick="setAppMode('consumer')" class="py-2 rounded-lg text-xs font-bold transition-all text-zinc-500 flex items-center justify-center gap-1.5">
+        <i data-lucide="home" class="w-3 h-3"></i> Consumer
+      </button>
+    </div>
+    <div class="relative flex-1">
+      <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400"></i>
+      <input id="searchInputM" oninput="onSearch(this.value)" placeholder="Search products..." class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-zinc-100 border border-zinc-200 text-xs outline-none focus:border-zinc-300">
+    </div>
+  </div>
+</header>
+
+<!-- MAIN APP BODY -->
+<div class="flex-1 grid lg:grid-cols-[280px_1fr]">
+
+  <!-- DESKTOP SIDEBAR -->
+  <aside class="hidden lg:flex flex-col border-r border-zinc-200/60 p-6 gap-6 bg-zinc-50/50">
+    <div class="relative">
+      <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400"></i>
+      <input id="searchInput" oninput="onSearch(this.value)" placeholder="Search products..." class="w-full pl-10 pr-4 py-3 rounded-xl bg-white border border-zinc-200 text-xs outline-none focus:border-zinc-300 focus:ring-1 focus:ring-brand/10">
+    </div>
+
+    <div>
+      <p class="text-[10px] font-bold tracking-widest text-zinc-400 mb-3 uppercase">Categories</p>
+      <div id="catList" class="space-y-1"></div>
+    </div>
+
+    <!-- Active Logistics & Freight Card -->
+    <div class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+      <div class="flex items-center gap-2 mb-2 text-zinc-500">
+        <i data-lucide="truck" class="w-4 h-4 text-brand"></i>
+        <span class="text-[10px] font-bold uppercase tracking-wider">Logistics Context</span>
+      </div>
+      <div class="space-y-2 mt-2">
+        <div>
+          <span class="text-[10px] text-zinc-400 block uppercase">Destination</span>
+          <span id="sideDest" class="font-bold text-xs text-zinc-800">Lagos Port (NG)</span>
+        </div>
+        <div>
+          <span class="text-[10px] text-zinc-400 block uppercase">Transit ETA</span>
+          <span id="sideTransit" class="font-bold text-xs text-brand">14-18 Days (Sea)</span>
+        </div>
+        <div class="pt-2 border-t border-zinc-100 flex items-center justify-between text-xs">
+          <span class="text-zinc-500">Weight-based calculation:</span>
+          <span class="font-bold text-emerald-800" id="sideFreightType">Cold Chain Sea</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Factory Info Block -->
+    <div class="rounded-2xl bg-brand text-white p-5 relative overflow-hidden">
+      <p class="text-[9px] tracking-wider opacity-60 font-bold uppercase">Modern Processing</p>
+      <p class="font-display text-2xl font-extrabold mt-1">500,000L<span class="text-xs font-bold opacity-80"> / day</span></p>
+      <p class="text-[11px] opacity-80 mt-1 leading-relaxed">Integrated raw milk sourcing from the RDI South-Western Uganda dairy belt. Clean export logistics.</p>
+      <div class="mt-4 grid grid-cols-2 gap-1.5 text-center text-[10px]">
+        <div class="bg-white/10 rounded-lg py-1.5 px-1"><div class="font-bold text-xs">18 mo</div><div class="opacity-70">Shelf Life</div></div>
+        <div class="bg-white/10 rounded-lg py-1.5 px-1"><div class="font-bold text-xs">Halal</div><div class="opacity-70">SGS Audited</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- CONTENT WINDOW -->
+  <main class="flex flex-col">
+    
+    <!-- DYNAMIC MODE BANNER (Hero) -->
+    <div class="px-4 md:px-8 pt-6">
+      <div id="heroBanner" class="rounded-[24px] overflow-hidden relative bg-gradient-to-br from-brand to-[#113125] text-white p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div class="relative z-10 max-w-[620px]">
+          <span id="heroBadge" class="inline-flex items-center gap-2 bg-white/10 border border-white/10 px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase">● Direct Export Wholesale Engine</span>
+          <h1 id="heroTitle" class="font-display font-extrabold text-[24px] md:text-[32px] leading-[1.1] mt-3">Import Grade Dairy directly from the <span class="text-pearl-gold">Pearl of Africa</span></h1>
+          <p id="heroDesc" class="text-white/75 text-xs md:text-sm mt-2 leading-relaxed">Standardized bulk production of low-moisture Mozzarella, fresh salted table butter, pure milk powder, and clarified ghee for international distributors, hotels, and retail clients.</p>
+          <div class="flex flex-wrap gap-2.5 mt-5">
+            <button onclick="scrollToProducts()" class="px-5 py-2.5 rounded-xl bg-pearl-gold hover:bg-amber-400 text-zinc-950 font-bold text-xs transition-all">Explore Catalogue</button>
+            <button id="heroSecBtn" onclick="openPlanner()" class="px-5 py-2.5 rounded-xl bg-white/10 border border-white/10 hover:bg-white/15 font-bold text-xs transition-all">Weekly Scheduler</button>
+          </div>
+        </div>
+        <div id="heroVisual" class="relative z-10 grid grid-cols-2 md:grid-cols-1 gap-2 w-full md:w-[240px]">
+          <div class="bg-[#FCFCF9] text-zinc-900 rounded-xl p-3 flex items-center gap-3 border border-zinc-100 shadow-sm"><div class="text-2xl">🧀</div><div><div class="font-bold text-xs leading-none text-brand">Mozzarella</div><div class="text-[10px] text-zinc-500 mt-1">18mo Low Moisture</div></div></div>
+          <div class="bg-[#FCFCF9] text-zinc-900 rounded-xl p-3 flex items-center gap-3 border border-zinc-100 shadow-sm"><div class="text-2xl">🧈</div><div><div class="font-bold text-xs leading-none text-brand">Ghee & Butter</div><div class="text-[10px] text-zinc-500 mt-1">Sourced from pasture-fed</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HORIZONTAL CHIP FILTER FOR MOBILE -->
+    <div class="lg:hidden px-4 mt-4">
+      <div id="mobileChips" class="flex gap-1.5 overflow-x-auto scrollbar-hide pb-1"></div>
+    </div>
+
+    <!-- CATALOGUE HEADER -->
+    <div class="px-4 md:px-8 mt-6 flex items-center justify-between">
+      <div>
+        <h2 class="font-display font-extrabold text-base md:text-lg flex items-center gap-2">
+          Available Products 
+          <span id="resultCount" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-zinc-100 text-zinc-500">0 items</span>
+        </h2>
+        <p class="text-[11px] text-zinc-400 mt-0.5" id="catalogueSubtext">Strict container, air cargo, or bulk multi-ton dispatch limits apply.</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <select id="sortSelect" onchange="sortProducts(this.value)" class="text-xs font-bold border border-zinc-200 rounded-xl px-3 py-2 bg-[#FCFCF9] outline-none">
+          <option value="popular">Most Ordered</option>
+          <option value="shelf">Longest Shelf Life</option>
+          <option value="weight">Bulk Sizes</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- PRODUCT DISPLAY GRID -->
+    <div id="productGrid" class="px-4 md:px-8 mt-4 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 pb-24 md:pb-8"></div>
+
+    <!-- WEEKLY PLANNER VIEW -->
+    <section id="plannerSection" class="hidden px-4 md:px-8 pb-12">
+      <div class="rounded-2xl border border-zinc-200/60 bg-white overflow-hidden shadow-sm">
+        <div class="p-5 md:p-6 flex flex-wrap items-center justify-between gap-4 border-b border-zinc-100 bg-zinc-50/50">
+          <div>
+            <h3 class="font-display font-extrabold text-sm md:text-base text-brand">Weekly Scheduled Planner</h3>
+            <p class="text-xs text-zinc-400">Establish regular contract shipping sequences. Cancel, freeze or expand shipments at any time.</p>
+          </div>
+          <div class="flex items-center gap-2 text-xs">
+            <span class="px-3 py-1.5 rounded-lg bg-zinc-100 border border-zinc-200 text-zinc-700 font-semibold" id="plannerCurrency">Planned Value: $0.00</span>
+            <button onclick="closePlanner()" class="px-3 py-1.5 rounded-lg bg-zinc-200 hover:bg-zinc-300 text-zinc-800 font-bold">Close</button>
+          </div>
+        </div>
+        <div class="p-5 grid md:grid-cols-[1.1fr_0.9fr] gap-6">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center gap-2">
+                <span class="flex h-2 w-2 relative"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span></span>
+                <p class="font-bold text-xs text-zinc-700">Planned Dispatch Frequency</p>
+              </div>
+              <p class="text-[10px] text-amber-800 bg-amber-50 border border-amber-200/50 px-2.5 py-0.5 rounded-full font-bold">Planned cycle on standby</p>
+            </div>
+            <div id="weekGrid" class="grid grid-cols-7 gap-1.5"></div>
+            <div class="mt-6 p-4 rounded-xl bg-zinc-50 border border-zinc-200/60 flex items-center justify-between">
+              <div>
+                <p class="text-[9px] tracking-wider font-bold text-zinc-400 uppercase">Estimated Cycle Weight</p>
+                <p id="outstanding" class="font-extrabold text-base text-zinc-800">0.00 kg</p>
+              </div>
+              <button onclick="openCart()" class="px-4 py-2 rounded-xl bg-brand text-white font-bold text-xs shadow-sm">View Schedule Detail</button>
+            </div>
+          </div>
+          <div class="rounded-xl bg-brand text-white p-5 relative overflow-hidden flex flex-col justify-between min-h-[200px]">
+            <div>
+              <p class="font-bold text-sm">Contract Type Selection</p>
+              <div class="mt-3 grid grid-cols-2 gap-2 text-[11px]">
+                <button class="buyerBtn py-2.5 rounded-lg bg-white text-zinc-900 font-bold transition-all shadow-sm" data-type="Pizza Chain">🍕 Pizzerias</button>
+                <button class="buyerBtn py-2.5 rounded-lg bg-white/10 border border-white/10 font-bold transition-all hover:bg-white/15" data-type="Hotel">🏨 HoReCa Hub</button>
+                <button class="buyerBtn py-2.5 rounded-lg bg-white/10 border border-white/10 font-bold transition-all hover:bg-white/15" data-type="Distributor">📦 Distributor</button>
+                <button class="buyerBtn py-2.5 rounded-lg bg-white/10 border border-white/10 font-bold transition-all hover:bg-white/15" data-type="Bakery">🥐 Industrial Bakery</button>
+              </div>
+            </div>
+            <p class="text-[10px] text-white/70 mt-4 leading-relaxed">Synchronize your manufacturing line or retail stores with direct cold-chain shipments. Halal analysis certificates are verified for each individual shipment batch.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- BOTTOM NAV MOBILE -->
+<nav class="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-[#FCFCF9] border-t border-zinc-200 px-3 py-2 flex justify-around shadow-lg">
+  <button onclick="showTab('home')" class="tabBtn flex flex-col items-center gap-1 px-3 py-1 rounded-xl bg-zinc-900 text-white" data-tab="home"><i data-lucide="grid" class="w-4 h-4"></i><span class="text-[9px] font-bold">Catalogue</span></button>
+  <button onclick="openLocationModal()" class="flex flex-col items-center gap-1 px-3 py-1 text-zinc-500"><i data-lucide="globe" class="w-4 h-4"></i><span class="text-[9px] font-bold">Logistics</span></button>
+  <button onclick="openCart()" class="flex flex-col items-center gap-1 px-3 py-1 text-zinc-500"><div class="relative"><i data-lucide="shopping-cart" class="w-4 h-4"></i><span id="cartBadgeM" class="absolute -top-1.5 -right-1.5 bg-pearl-gold text-zinc-950 text-[9px] font-extrabold px-1 rounded-full min-w-[14px]">0</span></div><span class="text-[9px] font-bold">Cart</span></button>
+  <button onclick="openPlanner()" class="flex flex-col items-center gap-1 px-3 py-1 text-zinc-500"><i data-lucide="calendar" class="w-4 h-4"></i><span class="text-[9px] font-bold">Planner</span></button>
+</nav>
+
+</div>
+
+<!-- LOCATION SELECTOR MODAL -->
+<div id="locationModal" class="hidden fixed inset-0 z-50 bg-zinc-950/40 backdrop-blur-sm p-4 flex items-center justify-center">
+  <div class="max-w-[480px] w-full bg-[#FCFCF9] rounded-[24px] overflow-hidden border border-zinc-200/60 shadow-float card-enter">
+    <div class="p-5 border-b border-zinc-100 flex items-center justify-between">
+      <div>
+        <h3 class="font-display font-extrabold text-base text-zinc-900">Destination & Logistics</h3>
+        <p class="text-[11px] text-zinc-400" id="locModalSub">Configure wholesale transit point</p>
+      </div>
+      <button onclick="closeLocationModal()" class="w-8 h-8 rounded-full bg-zinc-100 hover:bg-zinc-200 flex items-center justify-center text-zinc-500 transition-all">✕</button>
+    </div>
+    <div class="p-5 max-h-[380px] overflow-y-auto space-y-2.5" id="locationOptionList">
+      <!-- Generated Location Cards -->
+    </div>
+    <div class="p-4 bg-zinc-50 border-t border-zinc-100 text-[10.5px] text-zinc-500 leading-relaxed flex gap-2">
+      <i data-lucide="info" class="w-4 h-4 text-brand flex-shrink-0"></i>
+      <span>All exports originate from RDI Mbarara Processing Plant, Western Region, Uganda. Transit times include customs clearance at Malaba and port handling at Mombasa.</span>
+    </div>
+  </div>
+</div>
+
+<!-- PRODUCT MODAL -->
+<div id="productModal" class="hidden fixed inset-0 z-40 bg-zinc-950/40 backdrop-blur-sm p-4 md:p-8 overflow-y-auto flex items-center justify-center">
+  <div class="max-w-[850px] w-full bg-[#FCFCF9] rounded-[24px] overflow-hidden card-enter shadow-float">
+    <div class="grid md:grid-cols-2">
+      
+      <!-- Modal Media -->
+      <div class="p-6 md:p-8 bg-zinc-100/50 flex flex-col justify-between relative border-r border-zinc-100">
+        <button onclick="closeModal()" class="absolute top-4 left-4 w-9 h-9 rounded-full bg-white border border-zinc-200 flex items-center justify-center hover:bg-zinc-50 transition-all"><i data-lucide="arrow-left" class="w-4 h-4 text-zinc-600"></i></button>
+        <div class="my-auto py-8 flex flex-col items-center">
+          <div id="modalIcon" class="w-24 h-24 rounded-[22px] bg-white border border-zinc-200/60 flex items-center justify-center text-4xl shadow-sm">🧀</div>
+          <h3 id="modalName" class="font-display font-extrabold text-lg md:text-xl mt-4 text-zinc-900 text-center">Mozzarella Low-Moisture</h3>
+          <div class="flex gap-2 mt-2">
+            <span id="modalShelf" class="px-2.5 py-0.5 rounded-full bg-brand text-white text-[9px] font-bold uppercase tracking-wide">18 Months</span>
+            <span class="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200/50 text-[9px] font-bold uppercase">Certified Halal</span>
+          </div>
+          <p id="modalDesc" class="text-xs text-zinc-500 text-center mt-3 leading-relaxed">Stretch formulation with reliable melt profile. Perfect choice for pizzerias & international catering.</p>
+        </div>
+        <div class="mt-auto grid grid-cols-3 gap-2 text-center text-[10px] text-zinc-500 pt-4 border-t border-zinc-200/60">
+          <div><span class="block uppercase text-[8px] text-zinc-400">Manufactured</span><span class="font-bold text-zinc-700">RDI Uganda</span></div>
+          <div><span class="block uppercase text-[8px] text-zinc-400">Class</span><span class="font-bold text-zinc-700" id="modalClass">Industrial B2B</span></div>
+          <div><span class="block uppercase text-[8px] text-zinc-400">Temp</span><span class="font-bold text-zinc-700">-18°C or 4°C</span></div>
+        </div>
+      </div>
+
+      <!-- Modal Purchase Panel -->
+      <div class="p-6 md:p-8 flex flex-col justify-between">
+        <div>
+          <p class="text-[9px] tracking-wider font-bold text-zinc-400 uppercase">Select Packaging Size</p>
+          <div id="packOptions" class="flex flex-wrap gap-2 mt-2.5">
+            <!-- Dynamic pack size pills -->
+          </div>
+
+          <div class="mt-5 flex items-end justify-between border-b border-zinc-100 pb-4">
+            <div>
+              <p class="text-[9px] tracking-wider font-bold text-zinc-400 uppercase">Unit Weight Reference</p>
+              <p id="modalWeightRef" class="font-extrabold text-sm text-zinc-700 mt-1">10.00 kg</p>
+            </div>
+            <div class="text-right">
+              <p class="text-[9px] tracking-wider font-bold text-zinc-400 uppercase" id="priceLabel">Wholesale Price</p>
+              <p id="modalPrice" class="font-extrabold text-xl text-brand">$4.80 / kg</p>
+            </div>
+          </div>
+
+          <div class="mt-5">
+            <div class="flex justify-between items-center text-[9px] font-bold text-zinc-400 uppercase tracking-wider">
+              <span>Adjustment Qty (Packs)</span>
+              <span id="modalMoqHint" class="text-amber-800">MOQ: 5 units</span>
+            </div>
+            <div class="mt-2.5 flex items-center gap-4">
+              <div class="flex items-center gap-3">
+                <button onclick="changeModalQty(-1)" class="w-10 h-10 rounded-full border border-zinc-200 bg-white font-bold text-lg hover:bg-zinc-50 active:scale-95 transition-all text-zinc-700">−</button>
+                <div id="modalQty" class="w-12 text-center font-extrabold text-lg text-zinc-900">1</div>
+                <button onclick="changeModalQty(1)" class="w-10 h-10 rounded-full bg-zinc-900 text-white font-bold text-lg hover:bg-zinc-800 active:scale-95 transition-all">+</button>
+              </div>
+              <div class="leading-none text-zinc-400 text-xs">
+                Total Weight: <span id="modalTotalWeightCalc" class="font-extrabold text-zinc-800">10.00 kg</span>
+              </div>
+            </div>
+          </div>
+
+          <div id="modalLogisticsAlert" class="mt-5 p-3 rounded-xl bg-amber-50 border border-amber-200/50 flex gap-2.5">
+            <i data-lucide="shield-check" class="w-5 h-5 text-amber-700 flex-shrink-0 mt-0.5"></i>
+            <div>
+              <p class="text-[10px] font-bold text-amber-900 leading-tight">Cold-Chain Reefer Mandatory</p>
+              <p class="text-[9.5px] text-amber-800/80 mt-0.5 leading-normal">Maintained strictly at sub-zero levels throughout coastal trans-shipment.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-8 space-y-2">
+          <div class="flex gap-2">
+            <button onclick="addFromModal()" class="flex-1 py-3.5 rounded-xl bg-brand text-white font-extrabold text-xs tracking-wide hover:opacity-95 shadow-sm transition-all">Add To Cart</button>
+            <button onclick="subscribeModal()" class="px-5 py-3.5 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-800 font-bold text-xs transition-all">Weekly Plan</button>
+          </div>
+          <button onclick="closeModal()" class="w-full py-1.5 text-[10.5px] font-semibold text-zinc-400 hover:text-zinc-600 transition-all">Cancel & Return</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- CART DRAWER -->
+<div id="cartDrawer" class="hidden fixed inset-0 z-40">
+  <div class="absolute inset-0 bg-zinc-950/30 backdrop-blur-sm" onclick="closeCart()"></div>
+  <div class="absolute right-0 top-0 bottom-0 w-full max-w-[430px] bg-[#FCFCF9] shadow-float border-l border-zinc-200 flex flex-col">
+    
+    <!-- Cart Header -->
+    <div class="p-5 border-b border-zinc-200/60 flex items-center justify-between bg-zinc-50/50">
+      <div>
+        <h3 class="font-display font-extrabold text-base text-zinc-900">Configured Order</h3>
+        <p class="text-[11px] text-zinc-400" id="cartLocLabel">Freight Point: Lagos Port (NG)</p>
+      </div>
+      <button onclick="closeCart()" class="w-8 h-8 rounded-full bg-zinc-100 hover:bg-zinc-200 flex items-center justify-center text-zinc-500 transition-all">✕</button>
+    </div>
+
+    <!-- Cart Items Scroll -->
+    <div id="cartItems" class="flex-1 overflow-y-auto p-4 space-y-3">
+      <!-- Generated Cart Items -->
+    </div>
+
+    <!-- Live Logistics Calc Panel -->
+    <div class="p-4 border-t border-zinc-200/60 bg-emerald-50/40">
+      <div class="flex items-center justify-between text-xs mb-2">
+        <span class="text-zinc-500 flex items-center gap-1.5 font-semibold">
+          <i data-lucide="scale" class="w-3.5 h-3.5 text-brand"></i> Total Net Weight
+        </span>
+        <span class="font-extrabold text-zinc-800" id="cartTotalWeight">0.00 kg</span>
+      </div>
+      <div class="p-3 rounded-lg bg-[#FCFCF9] border border-emerald-900/10 flex flex-col gap-1 text-[11px]">
+        <div class="flex justify-between">
+          <span class="text-zinc-500" id="freightTypeLabel">Freight Option: Reefers Sea</span>
+          <span class="font-bold text-zinc-700" id="freightDestName">Lagos Port</span>
+        </div>
+        <div class="flex justify-between text-[10px] text-zinc-400 mt-1 pt-1 border-t border-dashed border-zinc-200">
+          <span>Formula basis:</span>
+          <span id="freightFormula">Base $450 + $0.35/kg</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cost Checkout Section -->
+    <div class="p-5 border-t border-zinc-200 bg-white space-y-3.5">
+      <div class="space-y-1.5 text-xs">
+        <div class="flex justify-between text-zinc-500">
+          <span>FOB Subtotal</span>
+          <span id="cartSub" class="font-semibold text-zinc-800">$0.00</span>
+        </div>
+        <div class="flex justify-between text-zinc-500">
+          <span>Logistics & Freight Est.</span>
+          <span id="cartFreightCost" class="font-bold text-brand">$0.00</span>
+        </div>
+        <div class="flex justify-between text-sm font-extrabold text-zinc-900 pt-2 border-t border-zinc-100">
+          <span>CIF Total Value Est.</span>
+          <span id="cartTotal" class="text-base text-brand">$0.00</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2 pt-1">
+        <button onclick="requestQuote()" class="py-3 rounded-xl bg-zinc-100 hover:bg-zinc-200 font-bold text-xs text-zinc-800 transition-all border border-zinc-200">Request Quote</button>
+        <button onclick="checkoutWhatsApp()" class="py-3 rounded-xl bg-[#25D366] hover:bg-[#20ba59] text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-sm transition-all"><i data-lucide="message-circle" class="w-4 h-4"></i> WhatsApp Order</button>
+      </div>
+      <p class="text-[10px] text-zinc-400 text-center leading-relaxed">Estimations calculated ex-factory. Subject to direct physical contract verification by RDI Group.</p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ADVANCED EXPORT & DOMESTIC LOGISTICS DATABASE
+const PRODUCTS = [
+  {
+    id: 1, 
+    name: 'Low-Moisture Mozzarella', 
+    cat: 'Cheese', 
+    icon: '🧀', 
+    tags: ['pizza', 'horeca', 'shredded'],
+    b2b: {
+      packs: [
+        { label: '10kg Industrial Block', weight: 10 },
+        { label: '2.5kg Catering Block', weight: 2.5 }
+      ],
+      pricePerKg: 4.80, // USD
+      moq: 50, // Min kg
+      shelf: '18 Months',
+      desc: 'Optimized melt and high-stretch low moisture cheese, designed specifically for commercial conveyer ovens.'
+    },
+    consumer: {
+      packs: [
+        { label: '500g Sliced Retail Block', weight: 0.5 },
+        { label: '250g Pre-grated Pack', weight: 0.25 }
+      ],
+      pricePerUnit: 14500, // UGX
+      moq: 1, 
+      shelf: '6 Months',
+      desc: 'Fresh, local table mozzarella, pre-shredded or in small logs for home kitchens.'
+    }
+  },
+  {
+    id: 2, 
+    name: 'Aged Cheddar Block', 
+    cat: 'Cheese', 
+    icon: '🧀', 
+    tags: ['bakery', 'retail'],
+    b2b: {
+      packs: [
+        { label: '20kg Premium Block', weight: 20 },
+        { label: '5kg Deli Block', weight: 5 }
+      ],
+      pricePerKg: 5.20, // USD
+      moq: 40,
+      shelf: '18 Months',
+      desc: 'Aged cheddar cheese with firm bite, suited for processing, deli repacking, or baking manufacturers.'
+    },
+    consumer: {
+      packs: [
+        { label: '250g Cheddar Slices', weight: 0.25 }
+      ],
+      pricePerUnit: 12000, // UGX
+      moq: 1,
+      shelf: '6 Months',
+      desc: 'Sharp domestic Cheddar, sliced for quick sandwich preps.'
+    }
+  },
+  {
+    id: 3, 
+    name: 'Premium Salted Table Butter', 
+    cat: 'Butter & Ghee', 
+    icon: '🧈', 
+    tags: ['bakery', 'hotel'],
+    b2b: {
+      packs: [
+        { label: '25kg Industrial Carton', weight: 25 },
+        { label: '10kg Catering Box', weight: 10 }
+      ],
+      pricePerKg: 5.80, // USD
+      moq: 100,
+      shelf: '18 Months',
+      desc: 'Grass-fed dairy cream source churned for food processing applications and high-end pastry work.'
+    },
+    consumer: {
+      packs: [
+        { label: '250g Wrapper Block', weight: 0.25 }
+      ],
+      pricePerUnit: 9000, // UGX
+      moq: 1,
+      shelf: '9 Months',
+      desc: 'Slightly salted fresh table butter, crafted with pasteurized cream.'
+    }
+  },
+  {
+    id: 4, 
+    name: 'Pure Clarified Ghee', 
+    cat: 'Butter & Ghee', 
+    icon: '🍯', 
+    tags: ['hotel', 'cooking'],
+    b2b: {
+      packs: [
+        { label: '15kg Large Tin', weight: 15 },
+        { label: '5L Bulk Jerrycan', weight: 5 }
+      ],
+      pricePerKg: 6.50, // USD
+      moq: 45,
+      shelf: '24 Months',
+      desc: 'High boiling threshold clarification process. Ideal for industrial cooking oil components and regional markets.'
+    },
+    consumer: {
+      packs: [
+        { label: '1kg Glass Jar', weight: 1.0 },
+        { label: '500g Tub', weight: 0.5 }
+      ],
+      pricePerUnit: 25000, // UGX
+      moq: 1,
+      shelf: '18 Months',
+      desc: 'Perfect clarity ghee for household frying, baking, and traditional foods.'
+    }
+  },
+  {
+    id: 5, 
+    name: 'Full Cream Milk Powder', 
+    cat: 'Milk Powder', 
+    icon: '🥛', 
+    tags: ['bakery', 'manufacturing'],
+    b2b: {
+      packs: [
+        { label: '25kg Multi-wall Bag', weight: 25 }
+      ],
+      pricePerKg: 3.40, // USD
+      moq: 250,
+      shelf: '24 Months',
+      desc: '26% butterfat milk powder, spray-dried. Optimized for fast recombination, confectionery, and bakeries.'
+    },
+    consumer: {
+      packs: [
+        { label: '1kg Zip Foil Bag', weight: 1.0 },
+        { label: '400g Refill Tin', weight: 0.4 }
+      ],
+      pricePerUnit: 18000, // UGX
+      moq: 2,
+      shelf: '12 Months',
+      desc: 'Rich premium instant solubility milk powder, packed with essential calcium and vitamins.'
+    }
+  },
+  {
+    id: 6, 
+    name: 'Pasteurized Cream Cheese', 
+    cat: 'Cheese', 
+    icon: '🥯', 
+    tags: ['bakery', 'dessert'],
+    b2b: {
+      packs: [
+        { label: '10kg Bulk Tub', weight: 10 },
+        { label: '2kg Catering Pack', weight: 2 }
+      ],
+      pricePerKg: 4.50, // USD
+      moq: 50,
+      shelf: '12 Months',
+      desc: 'High stability cream cheese spread for cheesecake preparation and cake icing.'
+    },
+    consumer: {
+      packs: [
+        { label: '250g Retail Tub', weight: 0.25 }
+      ],
+      pricePerUnit: 11500, // UGX
+      moq: 1,
+      shelf: '6 Months',
+      desc: 'Smooth and spreadable cream cheese perfect for bagels and household treats.'
+    }
+  }
+];
+
+// PORT EXPORT LOGISTICS (B2B Mode)
+const B2B_LOCATIONS = [
+  { id: 'lagos', name: 'Lagos Port (NG)', baseRate: 450, perKgRate: 0.35, transit: '14-18 Days (Sea Reefer)' },
+  { id: 'mombasa', name: 'Mombasa Port (KE)', baseRate: 150, perKgRate: 0.12, transit: '2-3 Days (Refrigerated Truck)' },
+  { id: 'dubai', name: 'Jebel Ali Port (UAE)', baseRate: 380, perKgRate: 0.28, transit: '10-12 Days (Sea Reefer)' },
+  { id: 'london', name: 'London Gateway (UK)', baseRate: 650, perKgRate: 0.45, transit: '20-24 Days (Sea Reefer)' },
+  { id: 'air_express', name: 'Global Air Cargo Hub', baseRate: 200, perKgRate: 2.90, transit: '2-4 Days (Cold Air Cargo)' }
+];
+
+// REGIONAL DISTRICT DELIVERY (Consumer Mode)
+const CONSUMER_LOCATIONS = [
+  { id: 'kampala', name: 'Kampala Central District', baseRate: 8000, perKgRate: 500, transit: '1-3 Hours (Express Delivery)' },
+  { id: 'entebbe', name: 'Entebbe Peninsula', baseRate: 15000, perKgRate: 800, transit: '3-5 Hours (Local Dispatch)' },
+  { id: 'wakiso', name: 'Wakiso District Suburbs', baseRate: 10000, perKgRate: 600, transit: 'Same-Day Dispatch' },
+  { id: 'mbarara', name: 'Mbarara Local Pick-Up', baseRate: 0, perKgRate: 0, transit: 'Instant (Farm Gate Pick-Up)' },
+  { id: 'jinja', name: 'Jinja Town Central', baseRate: 25000, perKgRate: 1000, transit: 'Next-Day Delivery Service' }
+];
+
+const CATS = ['All', 'Cheese', 'Butter & Ghee', 'Milk Powder'];
+
+// STATE MACHINE
+let activeCat = 'All';
+let searchQ = '';
+let sortBy = 'popular';
+let appMode = 'b2b'; // 'b2b' OR 'consumer'
+let cart = [];
+
+// Selected Logistics State
+let currentB2BLocation = B2B_LOCATIONS[0];
+let currentConsumerLocation = CONSUMER_LOCATIONS[0];
+
+// Modal Contexts
+let currentModalProduct = null;
+let selectedModalPack = null;
+let selectedModalQty = 1;
+
+function init() {
+  setAppMode('b2b'); // Default boot
+  renderCats();
+  renderMobileChips();
+  renderWeek();
+  lucide.createIcons();
+  
+  // Setup Planner Buyer Type button interactions
+  document.querySelectorAll('.buyerBtn').forEach(b => b.addEventListener('click', e => {
+    document.querySelectorAll('.buyerBtn').forEach(x => {
+      x.className = 'buyerBtn py-2.5 rounded-lg bg-white/10 border border-white/10 font-bold transition-all hover:bg-white/15 text-white';
+    });
+    e.currentTarget.className = 'buyerBtn py-2.5 rounded-lg bg-[#FCFCF9] text-zinc-950 font-bold transition-all shadow-sm';
+  }));
+}
+
+// TOGGLE CORE APP MODES
+function setAppMode(mode) {
+  appMode = mode;
+  cart = []; // Flush cart to avoid multi-currency cross pollination
+  
+  const b2bBtns = [document.getElementById('toggleB2BBtn'), document.getElementById('toggleB2BBtnM')];
+  const conBtns = [document.getElementById('toggleConsumerBtn'), document.getElementById('toggleConsumerBtnM')];
+  
+  if (appMode === 'b2b') {
+    b2bBtns.forEach(btn => { if(btn) btn.className = 'px-5 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 bg-brand text-white shadow-sm'; });
+    conBtns.forEach(btn => { if(btn) btn.className = 'px-5 py-2 rounded-lg text-xs font-semibold text-zinc-500 hover:text-zinc-950 transition-all flex items-center justify-center gap-2'; });
+    
+    // Set UI labels
+    document.getElementById('globalLocLabel').textContent = currentB2BLocation.name;
+    document.getElementById('heroBadge').textContent = '● Direct Export Wholesale Engine';
+    document.getElementById('heroTitle').innerHTML = `Import Grade Dairy directly from the <span class="text-pearl-gold">Pearl of Africa</span>`;
+    document.getElementById('heroDesc').textContent = 'Standardized bulk production of low-moisture Mozzarella, fresh butter, milk powder, and clarified ghee for international distributors, hotels, and retail clients.';
+    document.getElementById('catalogueSubtext').textContent = 'Strict container, air cargo, or bulk multi-ton dispatch limits apply.';
+    document.getElementById('heroSecBtn').classList.remove('hidden');
+    document.getElementById('plannerCurrency').textContent = 'Planned Value: $0.00';
+  } else {
+    conBtns.forEach(btn => { if(btn) btn.className = 'px-5 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 bg-brand text-white shadow-sm'; });
+    b2bBtns.forEach(btn => { if(btn) btn.className = 'px-5 py-2 rounded-lg text-xs font-semibold text-zinc-500 hover:text-zinc-950 transition-all flex items-center justify-center gap-2'; });
+    
+    // Set UI labels
+    document.getElementById('globalLocLabel').textContent = currentConsumerLocation.name;
+    document.getElementById('heroBadge').textContent = '● Pure Domestic Farm To Table';
+    document.getElementById('heroTitle').innerHTML = `Fresh RDI Dairy Delivered Directly to <span class="text-pearl-gold">Your Home</span>`;
+    document.getElementById('heroDesc').textContent = 'Taste dairy made from raw milk sourced from Southwestern Uganda. Fresh small blocks, grated cheese packs, and domestic household jars.';
+    document.getElementById('catalogueSubtext').textContent = 'Local courier delivery dispatched within hours. No bulk B2B business licenses needed.';
+    document.getElementById('heroSecBtn').classList.add('hidden');
+    document.getElementById('plannerCurrency').textContent = 'Planned Value: UGX 0';
+  }
+  
+  updateSidebarLogistics();
+  renderProducts();
+  updateCartUI();
+}
+
+// LOGISTICS CORNER
+function updateSidebarLogistics() {
+  const dest = document.getElementById('sideDest');
+  const transit = document.getElementById('sideTransit');
+  const ftype = document.getElementById('sideFreightType');
+  
+  if (appMode === 'b2b') {
+    dest.textContent = currentB2BLocation.name;
+    transit.textContent = currentB2BLocation.transit;
+    ftype.textContent = currentB2BLocation.id === 'air_express' ? 'Cold Air Cargo' : 'Cold-Chain Reefer';
+  } else {
+    dest.textContent = currentConsumerLocation.name;
+    transit.textContent = currentConsumerLocation.transit;
+    ftype.textContent = 'Motorbike Dispatch';
+  }
+  
+  const cartLoc = document.getElementById('cartLocLabel');
+  if (cartLoc) {
+    cartLoc.textContent = `Freight Point: ${appMode === 'b2b' ? currentB2BLocation.name : currentConsumerLocation.name}`;
+  }
+}
+
+// RENDER LEFT MENU CATEGORIES
+function renderCats() {
+  const el = document.getElementById('catList'); 
+  el.innerHTML = '';
+  CATS.forEach(c => {
+    const active = c === activeCat;
+    const count = c === 'All' ? PRODUCTS.length : PRODUCTS.filter(p => p.cat === c).length;
+    el.innerHTML += `
+      <button onclick="setCat('${c}')" class="w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between transition-all ${active ? 'bg-zinc-900 text-white shadow-sm' : 'hover:bg-zinc-200/50 hover:text-zinc-950 text-zinc-600'}">
+        <span>${c}</span>
+        <span class="text-[10px] ${active ? 'text-white/60' : 'text-zinc-400'}">${count}</span>
+      </button>`;
+  });
+}
+
+function renderMobileChips() {
+  const el = document.getElementById('mobileChips'); 
+  el.innerHTML = '';
+  CATS.forEach(c => {
+    const active = c === activeCat;
+    el.innerHTML += `
+      <button onclick="setCat('${c}')" class="whitespace-nowrap px-4 py-2 rounded-full text-xs font-bold border transition-all ${active ? 'bg-zinc-950 text-white border-zinc-950' : 'bg-white text-zinc-600 border-zinc-200'}">${c}</button>`;
+  });
+}
+
+function setCat(c) { 
+  activeCat = c; 
+  renderCats(); 
+  renderMobileChips(); 
+  renderProducts(); 
+}
+
+function onSearch(v) { 
+  searchQ = v.toLowerCase(); 
+  renderProducts(); 
+}
+
+function sortProducts(v) { 
+  sortBy = v; 
+  renderProducts(); 
+}
+
+function getFilteredList() {
+  let list = [...PRODUCTS];
+  if (activeCat !== 'All') {
+    list = list.filter(p => p.cat === activeCat);
+  }
+  if (searchQ) {
+    list = list.filter(p => p.name.toLowerCase().includes(searchQ) || p.tags.join(' ').includes(searchQ));
+  }
+  
+  if (sortBy === 'shelf') {
+    list.sort((a, b) => {
+      const aVal = parseInt(appMode === 'b2b' ? a.b2b.shelf : a.consumer.shelf);
+      const bVal = parseInt(appMode === 'b2b' ? b.b2b.shelf : b.consumer.shelf);
+      return bVal - aVal;
+    });
+  } else if (sortBy === 'weight') {
+    list.sort((a, b) => {
+      const aWeight = appMode === 'b2b' ? a.b2b.packs[0].weight : a.consumer.packs[0].weight;
+      const bWeight = appMode === 'b2b' ? b.b2b.packs[0].weight : b.consumer.packs[0].weight;
+      return bWeight - aWeight;
+    });
+  }
+  return list;
+}
+
+// MAIN RENDER PRODUCTS GRID
+function renderProducts() {
+  const grid = document.getElementById('productGrid'); 
+  const list = getFilteredList();
+  document.getElementById('resultCount').textContent = list.length + ' items';
+  grid.innerHTML = '';
+  
+  if (list.length === 0) {
+    grid.innerHTML = `
+      <div class="col-span-full py-16 text-center">
+        <p class="text-zinc-400 font-medium text-sm">No products matched your parameters.</p>
+      </div>`;
+    return;
+  }
+
+  list.forEach(p => {
+    const context = appMode === 'b2b' ? p.b2b : p.consumer;
+    const formattedPrice = appMode === 'b2b' 
+      ? `$${context.pricePerKg.toFixed(2)}/kg` 
+      : `${context.pricePerUnit.toLocaleString()} UGX`;
+      
+    const packString = context.packs.map(pk => pk.label).join(' • ');
+    const tagString = p.tags.map(t => `#${t}`).join(' ');
+
+    grid.innerHTML += `
+    <div onclick="openProduct(${p.id})" class="group cursor-pointer rounded-3xl bg-white border border-zinc-200/60 p-5 hover:shadow-card hover:border-zinc-300 transition-all card-enter flex flex-col justify-between">
+      <div>
+        <div class="flex items-start justify-between">
+          <div class="w-12 h-12 rounded-xl bg-zinc-100 flex items-center justify-center text-2xl shadow-sm group-hover:scale-105 transition-all">${p.icon}</div>
+          <div class="flex flex-col items-end gap-1">
+            <span class="px-2 py-0.5 rounded-full bg-zinc-900 text-white text-[9px] font-extrabold uppercase tracking-wider">${context.shelf} Shelf</span>
+            <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200/50 text-[9px] font-bold uppercase">HALAL CERTIFIED</span>
+          </div>
+        </div>
+        <h3 class="font-display font-extrabold text-base mt-4 text-zinc-950 group-hover:text-brand transition-colors leading-snug">${p.name}</h3>
+        <p class="text-[10px] text-brand font-bold mt-1 uppercase tracking-wide opacity-80">${p.cat} • ${packString}</p>
+        <p class="text-xs text-zinc-500 mt-2 line-clamp-3 leading-relaxed">${context.desc}</p>
+      </div>
+      
+      <div class="mt-5 pt-4 border-t border-zinc-100 flex items-center justify-between gap-2">
+        <div>
+          <div class="text-[9px] text-zinc-400 font-bold uppercase tracking-wider">MOQ: ${context.moq} ${appMode === 'b2b' ? 'kg' : 'units'}</div>
+          <div class="font-extrabold text-[15px] text-zinc-900 mt-0.5">${formattedPrice}</div>
+        </div>
+        <div class="flex gap-1">
+          <button onclick="event.stopPropagation(); quickAdd(${p.id})" class="px-3.5 py-2 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-bold transition-all">Add</button>
+          <button onclick="event.stopPropagation(); quickSubscribe(${p.id})" class="px-3.5 py-2 rounded-xl bg-brand text-white text-xs font-bold transition-all hover:opacity-90">Plan</button>
+        </div>
+      </div>
+    </div>`;
+  });
+  lucide.createIcons();
+}
+
+// LOGISTICS MODAL BUILDER & TRIGGERS
+function openLocationModal() {
+  const modal = document.getElementById('locationModal');
+  const sub = document.getElementById('locModalSub');
+  const listCont = document.getElementById('locationOptionList');
+  
+  listCont.innerHTML = '';
+  modal.classList.remove('hidden');
+  
+  if (appMode === 'b2b') {
+    sub.textContent = 'Configure wholesale ocean/air cargo transit';
+    B2B_LOCATIONS.forEach(loc => {
+      const active = currentB2BLocation.id === loc.id;
+      listCont.innerHTML += `
+        <div onclick="selectLocation('${loc.id}')" class="cursor-pointer p-4 rounded-xl border transition-all ${active ? 'bg-brand/5 border-brand text-brand' : 'bg-white border-zinc-200 text-zinc-800 hover:bg-zinc-50'}">
+          <div class="flex justify-between items-center">
+            <span class="font-bold text-xs">${loc.name}</span>
+            <span class="text-[10px] uppercase tracking-wider text-zinc-400 font-bold">${loc.transit}</span>
+          </div>
+          <div class="text-[10px] text-zinc-500 mt-1">Base Logistics Fee: $${loc.baseRate} + $${loc.perKgRate}/kg</div>
+        </div>`;
+    });
+  } else {
+    sub.textContent = 'Select Ugandan consumer delivery district';
+    CONSUMER_LOCATIONS.forEach(loc => {
+      const active = currentConsumerLocation.id === loc.id;
+      listCont.innerHTML += `
+        <div onclick="selectLocation('${loc.id}')" class="cursor-pointer p-4 rounded-xl border transition-all ${active ? 'bg-brand/5 border-brand text-brand' : 'bg-white border-zinc-200 text-zinc-800 hover:bg-zinc-50'}">
+          <div class="flex justify-between items-center">
+            <span class="font-bold text-xs">${loc.name}</span>
+            <span class="text-[10px] uppercase tracking-wider text-zinc-400 font-bold">${loc.transit}</span>
+          </div>
+          <div class="text-[10px] text-zinc-500 mt-1">Delivery Charge: ${loc.baseRate === 0 ? 'FREE' : loc.baseRate.toLocaleString() + ' UGX + ' + loc.perKgRate + ' UGX/kg'}</div>
+        </div>`;
+    });
+  }
+}
+
+function closeLocationModal() {
+  document.getElementById('locationModal').classList.add('hidden');
+}
+
+function selectLocation(id) {
+  if (appMode === 'b2b') {
+    const loc = B2B_LOCATIONS.find(x => x.id === id);
+    if (loc) currentB2BLocation = loc;
+    document.getElementById('globalLocLabel').textContent = currentB2BLocation.name;
+  } else {
+    const loc = CONSUMER_LOCATIONS.find(x => x.id === id);
+    if (loc) currentConsumerLocation = loc;
+    document.getElementById('globalLocLabel').textContent = currentConsumerLocation.name;
+  }
+  updateSidebarLogistics();
+  updateCartUI();
+  closeLocationModal();
+}
+
+// ITEM DRILLDOWN MODAL
+function openProduct(id) {
+  const p = PRODUCTS.find(x => x.id === id);
+  if (!p) return;
+  
+  currentModalProduct = p;
+  selectedModalQty = 1;
+  
+  const context = appMode === 'b2b' ? p.b2b : p.consumer;
+  selectedModalPack = context.packs[0]; // default primary pack
+  
+  document.getElementById('modalIcon').textContent = p.icon;
+  document.getElementById('modalName').textContent = p.name;
+  document.getElementById('modalDesc').textContent = context.desc;
+  document.getElementById('modalShelf').textContent = context.shelf + ' shelf';
+  document.getElementById('modalClass').textContent = appMode === 'b2b' ? 'Industrial B2B' : 'Consumer Pack';
+  
+  document.getElementById('modalMoqHint').textContent = `MOQ: ${context.moq} ${appMode === 'b2b' ? 'kg' : 'units'}`;
+  
+  const alertBox = document.getElementById('modalLogisticsAlert');
+  if (appMode === 'b2b') {
+    document.getElementById('priceLabel').textContent = 'Wholesale Price';
+    alertBox.classList.remove('hidden');
+  } else {
+    document.getElementById('priceLabel').textContent = 'Retail Price';
+    alertBox.classList.add('hidden');
+  }
+  
+  rebuildModalPills();
+  recalculateModalCalculations();
+  document.getElementById('productModal').classList.remove('hidden');
+}
+
+function closeModal() {
+  document.getElementById('productModal').classList.add('hidden');
+}
+
+function rebuildModalPills() {
+  const container = document.getElementById('packOptions');
+  container.innerHTML = '';
+  const context = appMode === 'b2b' ? currentModalProduct.b2b : currentModalProduct.consumer;
+  
+  context.packs.forEach(pack => {
+    const active = selectedModalPack.label === pack.label;
+    container.innerHTML += `
+      <button onclick="selectModalPack('${pack.label}')" class="px-3.5 py-2 rounded-xl text-xs font-bold border transition-all ${active ? 'bg-zinc-950 text-white border-zinc-950' : 'bg-white border-zinc-200 text-zinc-600 hover:bg-zinc-100'}">${pack.label}</button>`;
+  });
+}
+
+function selectModalPack(label) {
+  const context = appMode === 'b2b' ? currentModalProduct.b2b : currentModalProduct.consumer;
+  const match = context.packs.find(x => x.label === label);
+  if (match) {
+    selectedModalPack = match;
+    rebuildModalPills();
+    recalculateModalCalculations();
+  }
+}
+
+function changeModalQty(d) {
+  selectedModalQty = Math.max(1, selectedModalQty + d);
+  recalculateModalCalculations();
+}
+
+function recalculateModalCalculations() {
+  const context = appMode === 'b2b' ? currentModalProduct.b2b : currentModalProduct.consumer;
+  const singleWeight = selectedModalPack.weight;
+  const totalWeight = singleWeight * selectedModalQty;
+  
+  document.getElementById('modalQty').textContent = selectedModalQty;
+  document.getElementById('modalWeightRef').textContent = `${singleWeight.toFixed(2)} kg / unit`;
+  document.getElementById('modalTotalWeightCalc').textContent = `${totalWeight.toFixed(2)} kg`;
+  
+  if (appMode === 'b2b') {
+    document.getElementById('modalPrice').textContent = `$${context.pricePerKg.toFixed(2)} / kg`;
+  } else {
+    document.getElementById('modalPrice').textContent = `${context.pricePerUnit.toLocaleString()} UGX`;
+  }
+}
+
+// CART ADD ENGINES
+function addFromModal() {
+  if (!currentModalProduct) return;
+  const context = appMode === 'b2b' ? currentModalProduct.b2b : currentModalProduct.consumer;
+  const totalWeight = selectedModalPack.weight * selectedModalQty;
+  
+  if (appMode === 'b2b' && totalWeight < context.moq) {
+    alert(`Please observe the wholesale minimum order constraint. Currently: ${totalWeight.toFixed(1)}kg. Minimum target required: ${context.moq}kg.`);
+    return;
+  }
+  
+  addToCart(currentModalProduct.id, selectedModalQty, selectedModalPack);
+  closeModal();
+  openCart();
+}
+
+function subscribeModal() {
+  if (!currentModalProduct) return;
+  addToCart(currentModalProduct.id, selectedModalQty, selectedModalPack, true);
+  closeModal();
+  openPlanner();
+}
+
+function quickAdd(id) {
+  const p = PRODUCTS.find(x => x.id === id);
+  if (!p) return;
+  const context = appMode === 'b2b' ? p.b2b : p.consumer;
+  
+  // Calculate default single-pack units needed to satisfy MOQ
+  const primaryPack = context.packs[0];
+  let qty = 1;
+  const singleWeight = primaryPack.weight;
+  
+  if (appMode === 'b2b' && singleWeight < context.moq) {
+    qty = Math.ceil(context.moq / singleWeight);
+  }
+  
+  addToCart(id, qty, primaryPack);
+  openCart();
+}
+
+function quickSubscribe(id) {
+  const p = PRODUCTS.find(x => x.id === id);
+  if (!p) return;
+  const context = appMode === 'b2b' ? p.b2b : p.consumer;
+  const primaryPack = context.packs[0];
+  addToCart(id, 1, primaryPack, true);
+  openPlanner();
+}
+
+function addToCart(id, qty, pack, isSub = false) {
+  const p = PRODUCTS.find(x => x.id === id);
+  if (!p) return;
+  
+  const existing = cart.find(c => c.id === id && c.pack.label === pack.label && c.isSub === isSub);
+  if (existing) {
+    existing.qty += qty;
+  } else {
+    cart.push({
+      id: p.id,
+      name: p.name,
+      icon: p.icon,
+      pack: pack,
+      qty: qty,
+      isSub: isSub
+    });
+  }
+  updateCartUI();
+}
+
+// REAL-TIME CORE LOGISTICS / CART MATHEMATICAL ENGINE
+function updateCartUI() {
+  const count = cart.reduce((s, c) => s + c.qty, 0);
+  document.getElementById('cartCount').textContent = count;
+  const bm = document.getElementById('cartBadgeM');
+  if (bm) bm.textContent = count;
+  
+  const totalWeightKg = cart.reduce((total, item) => total + (item.pack.weight * item.qty), 0);
+  document.getElementById('cartTotalWeight').textContent = `${totalWeightKg.toFixed(2)} kg`;
+  
+  // Dynamic Freight calculations based on Selected Mode & Location
+  let freightCost = 0;
+  let subtotal = 0;
+  
+  if (appMode === 'b2b') {
+    // Calc standard wholesale B2B FOB (PricePerKg * Total Weight of product in kg)
+    cart.forEach(item => {
+      const p = PRODUCTS.find(x => x.id === item.id);
+      const totalItemWeight = item.pack.weight * item.qty;
+      subtotal += p.b2b.pricePerKg * totalItemWeight;
+    });
+    
+    // B2B shipping rate
+    if (totalWeightKg > 0) {
+      freightCost = currentB2BLocation.baseRate + (currentB2BLocation.perKgRate * totalWeightKg);
+    }
+    
+    document.getElementById('freightTypeLabel').textContent = 'Freight Option: Reefer Cold-Chain';
+    document.getElementById('freightDestName').textContent = currentB2BLocation.name;
+    document.getElementById('freightFormula').textContent = `Base $${currentB2BLocation.baseRate} + $${currentB2BLocation.perKgRate.toFixed(2)}/kg`;
+    
+    document.getElementById('cartSub').textContent = `$${subtotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+    document.getElementById('cartFreightCost').textContent = `$${freightCost.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+    
+    const grandTotal = subtotal + freightCost;
+    document.getElementById('cartTotal').textContent = `$${grandTotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+    document.getElementById('outstanding').textContent = `${totalWeightKg.toFixed(1)} kg`;
+  } else {
+    // Consumer Retail subtotal (PricePerUnit * Qty)
+    cart.forEach(item => {
+      const p = PRODUCTS.find(x => x.id === item.id);
+      subtotal += p.consumer.pricePerUnit * item.qty;
+    });
+    
+    // Consumer shipping rate
+    if (totalWeightKg > 0) {
+      freightCost = currentConsumerLocation.baseRate + (currentConsumerLocation.perKgRate * totalWeightKg);
+    }
+    
+    document.getElementById('freightTypeLabel').textContent = 'Delivery Mode: Moto-Courier';
+    document.getElementById('freightDestName').textContent = currentConsumerLocation.name;
+    document.getElementById('freightFormula').textContent = `Base ${currentConsumerLocation.baseRate.toLocaleString()} UGX + ${currentConsumerLocation.perKgRate.toLocaleString()} UGX/kg`;
+    
+    document.getElementById('cartSub').textContent = `${subtotal.toLocaleString()} UGX`;
+    document.getElementById('cartFreightCost').textContent = `${freightCost.toLocaleString()} UGX`;
+    
+    const grandTotal = subtotal + freightCost;
+    document.getElementById('cartTotal').textContent = `${grandTotal.toLocaleString()} UGX`;
+    document.getElementById('outstanding').textContent = `${totalWeightKg.toFixed(1)} kg`;
+  }
+  
+  // Render Cart Item List
+  const cont = document.getElementById('cartItems');
+  cont.innerHTML = '';
+  
+  if (cart.length === 0) {
+    cont.innerHTML = `
+      <div class="text-center py-16 px-4">
+        <div class="w-16 h-16 mx-auto rounded-full bg-zinc-100 flex items-center justify-center text-3xl shadow-sm">🧺</div>
+        <p class="font-extrabold mt-4 text-sm text-zinc-800">Your cart is empty</p>
+        <p class="text-xs text-zinc-500 mt-1 leading-relaxed">Toggle export or consumer classes to fill up on Ugandan fresh cheeses, butter & powder batches.</p>
+        <button onclick="closeCart();scrollToProducts()" class="mt-5 px-5 py-2.5 rounded-xl bg-zinc-900 text-white text-xs font-bold shadow-sm hover:bg-zinc-800 transition-all">Browse Products</button>
+      </div>`;
+    return;
+  }
+  
+  cart.forEach((c, i) => {
+    const p = PRODUCTS.find(x => x.id === c.id);
+    const itemWeightTotal = c.pack.weight * c.qty;
+    
+    let displayItemPrice = '';
+    if (appMode === 'b2b') {
+      const itemFobCost = p.b2b.pricePerKg * itemWeightTotal;
+      displayItemPrice = `$${itemFobCost.toFixed(2)}`;
+    } else {
+      const itemRetailCost = p.consumer.pricePerUnit * c.qty;
+      displayItemPrice = `${itemRetailCost.toLocaleString()} UGX`;
+    }
+    
+    cont.innerHTML += `
+      <div class="flex gap-3 p-4 rounded-xl border border-zinc-200/60 bg-white shadow-sm hover:border-zinc-300 transition-all">
+        <div class="w-11 h-11 rounded-lg bg-zinc-100 flex items-center justify-center text-xl border border-zinc-200/40">${c.icon}</div>
+        <div class="flex-1 min-w-0">
+          <div class="font-bold text-xs text-zinc-900 truncate leading-tight">${c.name}</div>
+          <div class="text-[10px] text-zinc-500 mt-1">${c.pack.label} • ${itemWeightTotal.toFixed(1)}kg total ${c.isSub ? ' [Plan]' : ''}</div>
+          
+          <div class="mt-3.5 flex items-center justify-between">
+            <div class="flex items-center gap-1.5">
+              <button onclick="changeCartQty(${i}, -1)" class="w-7 h-7 rounded-full bg-zinc-100 border border-zinc-200 font-bold text-xs flex items-center justify-center hover:bg-zinc-200 transition-all text-zinc-700">−</button>
+              <span class="w-6 text-center font-extrabold text-xs text-zinc-800">${c.qty}</span>
+              <button onclick="changeCartQty(${i}, 1)" class="w-7 h-7 rounded-full bg-zinc-900 text-white font-bold text-xs flex items-center justify-center hover:bg-zinc-800 transition-all">+</button>
+            </div>
+            <span class="font-extrabold text-xs text-brand">${displayItemPrice}</span>
+          </div>
+        </div>
+        <button onclick="removeCart(${i})" class="self-start text-zinc-300 hover:text-zinc-500 transition-colors text-xs font-bold">✕</button>
+      </div>`;
+  });
+}
+
+function changeCartQty(i, d) {
+  cart[i].qty = Math.max(1, cart[i].qty + d);
+  updateCartUI();
+}
+
+function removeCart(i) {
+  cart.splice(i, 1);
+  updateCartUI();
+}
+
+function openCart() { 
+  document.getElementById('cartDrawer').classList.remove('hidden'); 
+  lucide.createIcons(); 
+}
+
+function closeCart() { 
+  document.getElementById('cartDrawer').classList.add('hidden'); 
+}
+
+function openPlanner() { 
+  document.getElementById('plannerSection').classList.remove('hidden'); 
+  document.getElementById('plannerSection').scrollIntoView({ behavior: 'smooth' }); 
+}
+
+function closePlanner() { 
+  document.getElementById('plannerSection').classList.add('hidden'); 
+}
+
+function scrollToProducts() { 
+  document.getElementById('productGrid').scrollIntoView({ behavior: 'smooth' }); 
+}
+
+function showTab(t) { 
+  if (t === 'home') {
+    document.getElementById('productGrid').scrollIntoView({ behavior: 'smooth' });
+  } 
+}
+
+// WEEK DISPATCH SEQUENCER RENDER
+function renderWeek() {
+  const days = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']; 
+  const dates = ['5/02', '6/02', '7/02', '8/02', '9/02', '10/02', '11/02']; 
+  const qtys = [2, 1, 3, 0, 0, 0, 0];
+  const el = document.getElementById('weekGrid'); 
+  el.innerHTML = '';
+  
+  days.forEach((d, i) => {
+    const active = i === 2; 
+    el.innerHTML += `
+      <div class="rounded-xl border ${active ? 'border-brand bg-brand text-white shadow-sm' : 'border-zinc-200 bg-white'} p-2 text-center">
+        <div class="text-[9px] font-bold tracking-widest ${active ? 'text-white/60' : 'text-zinc-400'}">${d}</div>
+        <div class="text-[10px] font-semibold mt-0.5 ${active ? 'text-white/80' : 'text-zinc-500'}">${dates[i]}</div>
+        <div class="mt-2.5 w-7 h-7 mx-auto rounded-full ${active ? 'bg-[#FCFCF9] text-zinc-950' : 'bg-zinc-100 text-zinc-700'} flex items-center justify-center font-extrabold text-xs shadow-sm">${qtys[i]}</div>
+      </div>`;
+  });
+}
+
+// EXPORT WHATSAPP DISPATCH ENGINES
+function checkoutWhatsApp() {
+  if (cart.length === 0) { 
+    alert('Please insert items into your cart before initiating checkout.'); 
+    return; 
+  }
+  
+  let text = '';
+  
+  if (appMode === 'b2b') {
+    text = `As-salamu Alaikum Pearl of Africa Dairy! 🧀\n\n*EXPORT WHOLESALE B2B ORDER*\n• Delivery Target: ${currentB2BLocation.name}\n• Transit Class: ${currentB2BLocation.transit}\n\n`;
+    let subtotal = 0;
+    let totalWeight = 0;
+    
+    cart.forEach(c => {
+      const p = PRODUCTS.find(x => x.id === c.id);
+      const itemWeight = c.pack.weight * c.qty;
+      const itemFob = p.b2b.pricePerKg * itemWeight;
+      subtotal += itemFob;
+      totalWeight += itemWeight;
+      
+      text += `• ${c.qty}x ${c.name} (${c.pack.label}) - ${itemWeight.toFixed(1)}kg FOB: $${itemFob.toFixed(2)}${c.isSub ? ' [PLAN]' : ''}\n`;
+    });
+    
+    const freight = currentB2BLocation.baseRate + (currentB2BLocation.perKgRate * totalWeight);
+    const total = subtotal + freight;
+    
+    text += `\n*SUMMARY ANALYSIS (USD)*\n`;
+    text += `• Net Weight: ${totalWeight.toFixed(2)} kg\n`;
+    text += `• FOB Product Value: $${subtotal.toFixed(2)}\n`;
+    text += `• Logistics & Freight: $${freight.toFixed(2)}\n`;
+    text += `• *CIF Grand Total: $${total.toFixed(2)}*\n\n`;
+    text += `Please send us the formal commercial invoice, SGS Certificate of Analysis, and Halal clearances. Thank you!`;
+  } else {
+    text = `Hello Pearl of Africa! 🥛\n\n*CONSUMER FARM-TO-TABLE ORDER*\n• Delivery District: ${currentConsumerLocation.name}\n• Service Class: ${currentConsumerLocation.transit}\n\n`;
+    let subtotal = 0;
+    let totalWeight = 0;
+    
+    cart.forEach(c => {
+      const p = PRODUCTS.find(x => x.id === c.id);
+      const itemWeight = c.pack.weight * c.qty;
+      const itemCost = p.consumer.pricePerUnit * c.qty;
+      subtotal += itemCost;
+      totalWeight += itemWeight;
+      
+      text += `• ${c.qty}x ${c.name} (${c.pack.label}) - ${itemCost.toLocaleString()} UGX\n`;
+    });
+    
+    const deliveryFee = currentConsumerLocation.baseRate + (currentConsumerLocation.perKgRate * totalWeight);
+    const total = subtotal + deliveryFee;
+    
+    text += `\n*SUMMARY ANALYSIS (UGX)*\n`;
+    text += `• Net Weight: ${totalWeight.toFixed(2)} kg\n`;
+    text += `• Retail Value: ${subtotal.toLocaleString()} UGX\n`;
+    text += `• Courier Shipping: ${deliveryFee.toLocaleString()} UGX\n`;
+    text += `• *Grand Total: ${total.toLocaleString()} UGX*\n\n`;
+    text += `Please verify this direct local household dispatch delivery order. Thanks!`;
+  }
+  
+  window.open(`https://wa.me/256709207543?text=${encodeURIComponent(text)}`, '_blank');
+}
+
+function requestQuote() { 
+  checkoutWhatsApp(); 
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
